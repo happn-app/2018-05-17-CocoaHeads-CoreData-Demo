@@ -27,8 +27,6 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 			let controllers = split.viewControllers
 			detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
 		}
-		
-		updateUsers()
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -43,7 +41,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 	
 	@objc
 	func insertNewObject(_ sender: Any) {
-		let context = self.managedObjectContext!
+		let context = self.fetchedResultsController.managedObjectContext
 		let newUser = User(context: context)
 		
 		newUser.firstName = ["John", "James", "Robert", "Michael", "William"][Int(arc4random()%5)]
@@ -64,7 +62,6 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 		
 		do {
 			try context.save()
-			updateUsers()
 		} catch {
 			let nserror = error as NSError
 			fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
@@ -76,7 +73,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "showDetail" {
 			if let indexPath = tableView.indexPathForSelectedRow {
-				let object = users[indexPath.row]
+				let object = fetchedResultsController.object(at: indexPath)
 				let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
 				controller.detailItem = object
 				controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
@@ -88,16 +85,17 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 	// MARK: - Table View
 	
 	override func numberOfSections(in tableView: UITableView) -> Int {
-		return 1
+		return fetchedResultsController.sections?.count ?? 0
 	}
 	
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return users.count
+		let sectionInfo = fetchedResultsController.sections![section]
+		return sectionInfo.numberOfObjects
 	}
 	
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-		let user = users[indexPath.row]
+		let user = fetchedResultsController.object(at: indexPath)
 		configureCell(cell, withUser: user)
 		return cell
 	}
@@ -109,12 +107,11 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
 		if editingStyle == .delete {
-			let context = managedObjectContext!
-			context.delete(users[indexPath.row])
+			let context = fetchedResultsController.managedObjectContext
+			context.delete(fetchedResultsController.object(at: indexPath))
 			
 			do {
 				try context.save()
-				updateUsers()
 			} catch {
 				// Replace this implementation with code to handle the error appropriately.
 				// fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
@@ -128,23 +125,62 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 		cell.textLabel!.text = user.fullName
 	}
 	
-	// MARK: - Users fetching
+	// MARK: - Fetched results controller
 	
-	func updateUsers() {
+	lazy var fetchedResultsController: NSFetchedResultsController<User> = {
 		let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
 		
 		let sortDescriptor = NSSortDescriptor(key: "firstName", ascending: true) /* Sort by firstName */
 		fetchRequest.sortDescriptors = [sortDescriptor]
 		
+		// Edit the section name key path and cache name if appropriate.
+		// nil for section name key path means "no sections".
+		let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName: "Master")
+		aFetchedResultsController.delegate = self
+		
 		do {
-			users = try self.managedObjectContext!.fetch(fetchRequest)
-			tableView.reloadData()
+			try aFetchedResultsController.performFetch()
 		} catch {
+			// Replace this implementation with code to handle the error appropriately.
+			// fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
 			let nserror = error as NSError
 			fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
 		}
+		
+		return aFetchedResultsController
+	}()
+	
+	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		tableView.beginUpdates()
 	}
 	
-	var users = [User]()
+	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+		switch type {
+		case .insert:
+			tableView.insertSections(IndexSet(integer: sectionIndex), with: .fade)
+		case .delete:
+			tableView.deleteSections(IndexSet(integer: sectionIndex), with: .fade)
+		default:
+			return
+		}
+	}
+	
+	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+		switch type {
+		case .insert:
+			tableView.insertRows(at: [newIndexPath!], with: .fade)
+		case .delete:
+			tableView.deleteRows(at: [indexPath!], with: .fade)
+		case .update:
+			configureCell(tableView.cellForRow(at: indexPath!)!, withUser: anObject as! User)
+		case .move:
+			configureCell(tableView.cellForRow(at: indexPath!)!, withUser: anObject as! User)
+			tableView.moveRow(at: indexPath!, to: newIndexPath!)
+		}
+	}
+	
+	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		tableView.endUpdates()
+	}
 	
 }
