@@ -21,6 +21,11 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 		
 		navigationItem.leftBarButtonItem = editButtonItem
 		
+		tableView.fetchedResultsControllerReloadMode = .handler({ [weak self] cell, object, _, _ in
+			self?.configureCell(cell, withUser: object as! User)
+		})
+		tableView.fetchedResultsControllerMoveMode = .move(reloadMode: .standard)
+		
 		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
 		navigationItem.rightBarButtonItem = addButton
 		if let split = splitViewController {
@@ -151,36 +156,19 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 	}()
 	
 	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		tableView.beginUpdates()
+		tableView.fetchedResultsControllerWillChangeContent()
 	}
 	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-		switch type {
-		case .insert:
-			tableView.insertSections(IndexSet(integer: sectionIndex), with: .fade)
-		case .delete:
-			tableView.deleteSections(IndexSet(integer: sectionIndex), with: .fade)
-		default:
-			return
-		}
+		tableView.fetchedResultsControllerDidChange(section: sectionInfo, atIndex: sectionIndex, forChangeType: type)
 	}
 	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-		switch type {
-		case .insert:
-			tableView.insertRows(at: [newIndexPath!], with: .fade)
-		case .delete:
-			tableView.deleteRows(at: [indexPath!], with: .fade)
-		case .update:
-			configureCell(tableView.cellForRow(at: indexPath!)!, withUser: anObject as! User)
-		case .move:
-			configureCell(tableView.cellForRow(at: indexPath!)!, withUser: anObject as! User)
-			tableView.moveRow(at: indexPath!, to: newIndexPath!)
-		}
+		tableView.fetchedResultsControllerDidChange(object: anObject, atIndexPath: indexPath, forChangeType: type, newIndexPath: newIndexPath)
 	}
 	
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		tableView.endUpdates()
+		tableView.fetchedResultsControllerDidChangeContent()
 	}
 	
 }

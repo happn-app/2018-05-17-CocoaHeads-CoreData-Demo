@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B84354820A6E90F007B4608 /* UITableView+FetchedResultsControllerConveniences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B84354720A6E90F007B4608 /* UITableView+FetchedResultsControllerConveniences.swift */; };
 		7B85043320A5CECF003D0FB7 /* User+Conveniences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B85043220A5CECF003D0FB7 /* User+Conveniences.swift */; };
 		7B85043520A5CF6F003D0FB7 /* UIImage+URLLoading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B85043420A5CF6F003D0FB7 /* UIImage+URLLoading.swift */; };
 		7BFFD44320A056E500EF121F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFFD44220A056E500EF121F /* AppDelegate.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7B84354720A6E90F007B4608 /* UITableView+FetchedResultsControllerConveniences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITableView+FetchedResultsControllerConveniences.swift"; sourceTree = "<group>"; };
 		7B85043220A5CECF003D0FB7 /* User+Conveniences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Conveniences.swift"; sourceTree = "<group>"; };
 		7B85043420A5CF6F003D0FB7 /* UIImage+URLLoading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+URLLoading.swift"; sourceTree = "<group>"; };
 		7BFFD43F20A056E500EF121F /* CoreData Pres Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CoreData Pres Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +54,7 @@
 				7BFFD44720A056E500EF121F /* MasterViewController.swift */,
 				7BFFD44920A056E500EF121F /* DetailViewController.swift */,
 				7B85043420A5CF6F003D0FB7 /* UIImage+URLLoading.swift */,
+				7B84354720A6E90F007B4608 /* UITableView+FetchedResultsControllerConveniences.swift */,
 			);
 			path = "Views and Controllers";
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 				7BFFD44620A056E500EF121F /* CoreData_Pres_Demo.xcdatamodeld in Sources */,
 				7B85043520A5CF6F003D0FB7 /* UIImage+URLLoading.swift in Sources */,
 				7BFFD44820A056E500EF121F /* MasterViewController.swift in Sources */,
+				7B84354820A6E90F007B4608 /* UITableView+FetchedResultsControllerConveniences.swift in Sources */,
 				7B85043320A5CECF003D0FB7 /* User+Conveniences.swift in Sources */,
 				7BFFD44A20A056E500EF121F /* DetailViewController.swift in Sources */,
 			);
